@@ -1,9 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
+	"ti1be/config"
+
+	// fjern senere
+	"github.com/joho/godotenv"
 )
 
 type StatusResponse struct {
@@ -14,6 +19,8 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 	Code  int    `json:"code"`
 }
+
+var db *sql.DB
 
 func statusHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -32,11 +39,22 @@ func notFoundHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	// fjern senere
+	godotenv.Load()
+
+	// Connect to PostgreSQL
+	var err error
+	db, err = config.ConnectToPostgreSQL()
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer config.DisconnectFromPostgreSQL(db)
+
 	mux := http.NewServeMux()
-	
+
 	// Register status endpoint
 	mux.HandleFunc("/status", statusHandler)
-	
+
 	// Wrap with custom 404 handler
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/status" {
@@ -45,7 +63,7 @@ func main() {
 		}
 		mux.ServeHTTP(w, r)
 	})
-	
+
 	log.Println("Server starting on :8080")
 	if err := http.ListenAndServe(":8080", handler); err != nil {
 		log.Fatal(err)

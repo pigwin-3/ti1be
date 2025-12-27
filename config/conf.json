@@ -1,0 +1,10 @@
+{
+  "database": {
+    "host": "localhost",
+    "port": "5432",
+    "user": "ti1",
+    "password": "ti1password",
+    "dbname": "ti1",
+    "sslmode": "disable"
+  }
+}
