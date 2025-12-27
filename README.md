@@ -45,5 +45,41 @@ Peramiters:
     id < 1000000
     ```
     - When in use i shal use the last id in previos result
-  
-    
+
+### ./calls?id=...
+If not int give 404
+Peramiters:
+- id
+  - ```sql
+    estimatedvehiclejourney WHERE id = 943730
+    ```
+    and
+    ```sql
+    calls WHERE estimatedvehiclejourney = 943730
+    ```
+- limit
+  - default 200
+  - ```sql
+    LIMIT 200
+    ```
+  - max 1k (remember to make easy to change
+
+first get:
+```sql
+SELECT * FROM estimatedvehiclejourney WHERE id = 943730
+```
+then get:
+```sql
+SELECT *
+FROM calls
+WHERE estimatedvehiclejourney = 943730
+ORDER BY "order" ASC
+LIMIT 200
+```
+
+## /calls
+### ./get?id=...
+```sql
+SELECT * FROM calls WHERE id = 25148238
+```
+
