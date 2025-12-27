@@ -63,6 +63,11 @@ func main() {
 
 	mux := http.NewServeMux()
 
+	// Serve favicon
+	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./static/favicon.ico")
+	})
+
 	// Register status endpoint
 	mux.HandleFunc("/status", statusHandler)
 
@@ -72,7 +77,9 @@ func main() {
 	// Wrap with custom 404 handler
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Check if path matches any registered routes
-		if r.URL.Path != "/status" && !strings.HasPrefix(r.URL.Path, "/journey/") {
+		if r.URL.Path != "/status" &&
+			r.URL.Path != "/favicon.ico" &&
+			!strings.HasPrefix(r.URL.Path, "/journey/") {
 			notFoundHandler(w, r)
 			return
 		}
