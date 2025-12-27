@@ -25,19 +25,25 @@ type ErrorResponse struct {
 var db *sql.DB
 
 func statusHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	response := StatusResponse{Status: "ok"}
-	json.NewEncoder(w).Encode(response)
+	lrw, logResponse := handlers.LogRequestWithWriter(w, r)
+	defer logResponse()
+
+	lrw.Header().Set("Content-Type", "application/json")
+	response := StatusResponse{Status: "running"}
+	json.NewEncoder(lrw).Encode(response)
 }
 
 func notFoundHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusNotFound)
+	lrw, logResponse := handlers.LogRequestWithWriter(w, r)
+	defer logResponse()
+
+	lrw.Header().Set("Content-Type", "application/json")
+	lrw.WriteHeader(http.StatusNotFound)
 	response := ErrorResponse{
 		Error: "Not Found",
 		Code:  404,
 	}
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(lrw).Encode(response)
 }
 
 func main() {
@@ -74,7 +80,7 @@ func main() {
 	})
 
 	log.Println("Server starting on :8080")
-	if err := http.ListenAndServe(":8080", handler); err != nil {
+	if err := http.ListenAndServe(":8081", handler); err != nil {
 		log.Fatal(err)
 	}
 }

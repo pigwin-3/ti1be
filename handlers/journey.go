@@ -3,7 +3,6 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"log"
 	"net/http"
 )
 
@@ -23,14 +22,10 @@ type JourneyResponse struct {
 }
 
 func (h *JourneyHandler) GetJourneys(w http.ResponseWriter, r *http.Request) {
-	// Log request
-	clientIP := r.RemoteAddr
-	if forwarded := r.Header.Get("X-Forwarded-For"); forwarded != "" {
-		clientIP = forwarded
-	}
-	log.Printf("GET %s from %s", r.URL.RequestURI(), clientIP)
+	lrw, logResponse := LogRequestWithWriter(w, r)
+	defer logResponse()
 
-	w.Header().Set("Content-Type", "application/json")
+	lrw.Header().Set("Content-Type", "application/json")
 
 	// Parse query parameters
 	query := r.URL.Query()
@@ -68,7 +63,7 @@ func (h *JourneyHandler) GetJourneys(w http.ResponseWriter, r *http.Request) {
 	// Execute query
 	rows, err := h.DB.Query(qb.Query, qb.Args...)
 	if err != nil {
-		http.Error(w, `{"error":"Database query failed","code":500}`, http.StatusInternalServerError)
+		http.Error(lrw, `{"error":"Database query failed","code":500}`, http.StatusInternalServerError)
 		return
 	}
 	defer rows.Close()
@@ -76,7 +71,7 @@ func (h *JourneyHandler) GetJourneys(w http.ResponseWriter, r *http.Request) {
 	// Scan rows
 	results, err := ScanRowsToOrderedMaps(rows)
 	if err != nil {
-		http.Error(w, `{"error":"Failed to scan rows","code":500}`, http.StatusInternalServerError)
+		http.Error(lrw, `{"error":"Failed to scan rows","code":500}`, http.StatusInternalServerError)
 		return
 	}
 
@@ -88,5 +83,5 @@ func (h *JourneyHandler) GetJourneys(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return JSON response
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(lrw).Encode(response)
 }
