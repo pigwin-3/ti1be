@@ -60,6 +60,29 @@ func (qb *QueryBuilder) AddSingleOrMultipleCondition(field string, value string)
 	}
 }
 
+// AddSingleOrMultipleConditionWithQuotes handles parameters that need quoted field names (like "order")
+func (qb *QueryBuilder) AddSingleOrMultipleConditionWithQuotes(field string, value string) {
+	if value == "" {
+		return
+	}
+
+	quotedField := `"` + field + `"`
+	values := strings.Split(value, ",")
+	if len(values) == 1 {
+		qb.Query += " AND " + quotedField + " = $" + strconv.Itoa(qb.ArgCount)
+		qb.Args = append(qb.Args, value)
+		qb.ArgCount++
+	} else {
+		placeholders := []string{}
+		for _, val := range values {
+			placeholders = append(placeholders, "$"+strconv.Itoa(qb.ArgCount))
+			qb.Args = append(qb.Args, strings.TrimSpace(val))
+			qb.ArgCount++
+		}
+		qb.Query += " AND " + quotedField + " IN (" + strings.Join(placeholders, ",") + ")"
+	}
+}
+
 // AddLimit adds a LIMIT clause
 func (qb *QueryBuilder) AddLimit(limit int) {
 	qb.Query += " LIMIT $" + strconv.Itoa(qb.ArgCount)

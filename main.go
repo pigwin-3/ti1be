@@ -60,6 +60,7 @@ func main() {
 
 	// Create handlers
 	journeyHandler := &handlers.JourneyHandler{DB: db}
+	callsHandler := &handlers.CallsHandler{DB: db}
 
 	mux := http.NewServeMux()
 
@@ -75,12 +76,16 @@ func main() {
 	mux.HandleFunc("/journey/get", journeyHandler.GetJourneys)
 	mux.HandleFunc("/journey/calls", journeyHandler.GetJourneyCalls)
 
+	// Register calls endpoints
+	mux.HandleFunc("/calls/get", callsHandler.GetCalls)
+
 	// Wrap with custom 404 handler
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Check if path matches any registered routes
 		if r.URL.Path != "/status" &&
 			r.URL.Path != "/favicon.ico" &&
-			!strings.HasPrefix(r.URL.Path, "/journey/") {
+			!strings.HasPrefix(r.URL.Path, "/journey/") &&
+			!strings.HasPrefix(r.URL.Path, "/calls/") {
 			notFoundHandler(w, r)
 			return
 		}
@@ -88,7 +93,7 @@ func main() {
 	})
 
 	log.Println("Server starting on :8080")
-	if err := http.ListenAndServe(":8081", handler); err != nil {
+	if err := http.ListenAndServe(":8080", handler); err != nil {
 		log.Fatal(err)
 	}
 }
