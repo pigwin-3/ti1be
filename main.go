@@ -69,23 +69,17 @@ func main() {
 		http.ServeFile(w, r, "./static/favicon.ico")
 	})
 
-	// Register status endpoint
-	mux.HandleFunc("/status", statusHandler)
-
-	// Register journey endpoints
-	mux.HandleFunc("/journey/get", journeyHandler.GetJourneys)
-	mux.HandleFunc("/journey/calls", journeyHandler.GetJourneyCalls)
-
-	// Register calls endpoints
-	mux.HandleFunc("/calls/get", callsHandler.GetCalls)
+	// Register API v1 endpoints
+	mux.HandleFunc("/api/v1/status", statusHandler)
+	mux.HandleFunc("/api/v1/journey/get", journeyHandler.GetJourneys)
+	mux.HandleFunc("/api/v1/journey/calls", journeyHandler.GetJourneyCalls)
+	mux.HandleFunc("/api/v1/calls/get", callsHandler.GetCalls)
 
 	// Wrap with custom 404 handler
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Check if path matches any registered routes
-		if r.URL.Path != "/status" &&
-			r.URL.Path != "/favicon.ico" &&
-			!strings.HasPrefix(r.URL.Path, "/journey/") &&
-			!strings.HasPrefix(r.URL.Path, "/calls/") {
+		if r.URL.Path != "/favicon.ico" &&
+			!strings.HasPrefix(r.URL.Path, "/api/v1/") {
 			notFoundHandler(w, r)
 			return
 		}
