@@ -15,6 +15,10 @@ Peramiters:
     LIMIT 50
     ```
   - max 1k (remember to make easy to change
+- id
+  - ```sql
+    estimatedvehiclejourney WHERE id = 943730
+    ```
 - vehicle_ref
   - ```sql
     Where estimatedvehiclejourney.vehicleref = '1881'
@@ -78,8 +82,45 @@ LIMIT 200
 ```
 
 ## /calls
-### ./get?id=...
+### ./get?
 ```sql
-SELECT * FROM calls WHERE id = 25148238
+SELECT * FROM calls WHERE ... ORDER BY id ASC
 ```
-
+- limit
+  - default 10
+  - ```sql
+    LIMIT 10
+    ```
+  - max 1k (remember to make easy to change
+- id
+  - ```sql
+    WHERE id = 25148238
+    ```
+  - or mutliple
+  - ```sql
+    WHERE id IN (25148238, 1, 7337)
+    ```
+- estimatedvehiclejourney
+  - ```sql
+    WHERE estimatedvehiclejourney = 7
+    ```
+  - or mutliple
+  - ```sql
+    WHERE estimatedvehiclejourney IN (7, 1, 7337)
+    ```
+- order
+  - ```sql
+    WHERE "order" = 1
+    ```
+  - or mutliple
+  - ```sql
+    WHERE "order" IN (1, 2, 189)
+    ```
+- stoppointref
+  - ```sql
+    WHERE stoppointref = 'NSR:Quay:94512'
+    ```
+  - or mutliple
+  - ```sql
+    WHERE stoppointref IN ('NSR:Quay:94512', 'NSR:Quay:111', 'NSR:Quay:123')
+    ```
