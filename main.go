@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 	"ti1be/config"
+	"ti1be/handlers"
 
 	// fjern senere
 	"github.com/joho/godotenv"
@@ -50,14 +52,21 @@ func main() {
 	}
 	defer config.DisconnectFromPostgreSQL(db)
 
+	// Create handlers
+	journeyHandler := &handlers.JourneyHandler{DB: db}
+
 	mux := http.NewServeMux()
 
 	// Register status endpoint
 	mux.HandleFunc("/status", statusHandler)
 
+	// Register journey endpoints
+	mux.HandleFunc("/journey/get", journeyHandler.GetJourneys)
+
 	// Wrap with custom 404 handler
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/status" {
+		// Check if path matches any registered routes
+		if r.URL.Path != "/status" && !strings.HasPrefix(r.URL.Path, "/journey/") {
 			notFoundHandler(w, r)
 			return
 		}
