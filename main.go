@@ -73,6 +73,7 @@ func main() {
 
 	// Register journey endpoints
 	mux.HandleFunc("/journey/get", journeyHandler.GetJourneys)
+	mux.HandleFunc("/journey/calls", journeyHandler.GetJourneyCalls)
 
 	// Wrap with custom 404 handler
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
