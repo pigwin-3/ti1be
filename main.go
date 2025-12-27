@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strings"
 	"ti1be/config"
 	"ti1be/handlers"
+	"ti1be/pages"
 
 	// fjern senere
 	"github.com/joho/godotenv"
@@ -64,6 +64,9 @@ func main() {
 
 	mux := http.NewServeMux()
 
+	// Serve home page
+	mux.HandleFunc("/", pages.HomeHandler)
+
 	// Serve favicon
 	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./static/favicon.ico")
@@ -75,19 +78,10 @@ func main() {
 	mux.HandleFunc("/api/v1/journey/calls", journeyHandler.GetJourneyCalls)
 	mux.HandleFunc("/api/v1/calls/get", callsHandler.GetCalls)
 
-	// Wrap with custom 404 handler
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Check if path matches any registered routes
-		if r.URL.Path != "/favicon.ico" &&
-			!strings.HasPrefix(r.URL.Path, "/api/v1/") {
-			notFoundHandler(w, r)
-			return
-		}
-		mux.ServeHTTP(w, r)
-	})
+	// Use mux directly (it handles 404s for unregistered routes)
 
 	log.Println("Server starting on :8080")
-	if err := http.ListenAndServe(":8080", handler); err != nil {
+	if err := http.ListenAndServe(":8080", mux); err != nil {
 		log.Fatal(err)
 	}
 }
